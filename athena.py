@@ -19,6 +19,7 @@ load_dotenv()
 PERSIST = False
 dataDirectory = "data/"
 persistDirectory = "persist"
+returnSourceDocuments = False
 
 query = sys.argv[1]
 
@@ -36,6 +37,13 @@ else:
 chain = RetrievalQA.from_chain_type(
   llm = ChatOpenAI(model="gpt-3.5-turbo"),
   retriever = index.vectorstore.as_retriever(search_kwargs={"k": 1}),
+  return_source_documents=returnSourceDocuments  # Set this flag to True to include sources in the response
 )
 
-print(chain.run(query))
+response = chain._call({'query': query})
+
+print(response['result'])
+
+if (returnSourceDocuments):
+  print()
+  print(response['source_documents'])
